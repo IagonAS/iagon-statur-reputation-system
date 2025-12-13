@@ -1,0 +1,45 @@
+# Metric Definition Creation Flow
+
+This sequence diagram illustrates how a project administrator defines a new reputation metric for a project using Statur. The process begins with the administrator submitting a validated metric definition through the project’s administration frontend. The project backend then authenticates with the Statur reputation backend using a JWT derived from its API key and signs the metric definition using its project-owned ed25519 key. The signed payload is verified by the reputation backend, which enforces authentication, signature validity, and authorization before persisting the metric definition in the database. Upon success, confirmation is returned to the project, completing the administrator’s action.
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor Admin as Project Administrator
+  participant AF as Administration Frontend<br>(project-hosted)
+  participant AB as Administration Backend<br>(project-hosted)
+  participant RB as Iagon Reputation Backend<br>(Python API)
+  participant DB as Postgres Database<br>(Statur source data)
+
+  Admin->>AF: Open "Add Metric" screen
+  AF-->>Admin: Display metric form
+
+  Admin->>AF: Enter metric details<br>(key, label, units, weight, description)
+  AF->>AF: Validate fields<br>(required, formats, ranges)
+  
+  AF->>AB: Submit metric creation request<br>(validated form data)
+
+  Note over AB: Backend holds API key and<br>ed25519 signing key (project-owned)
+
+  AB->>RB: Request JWT access token<br>using API key
+  RB-->>AB: Return JWT access token<br>(time-limited)
+
+  AB->>AB: Build metric creation payload<br>(canonical fields)
+  AB->>AB: Create validity range<br>(invalid_before, invalid_after)
+  AB->>AB: Sign payload + validity range<br>with ed25519 private key
+
+  AB->>AB: Assemble signed JSON object<br>1) payload<br>2) signature metadata<br>3) validity range
+
+  AB->>RB: POST Create Metric<br>Authorization: Bearer JWT<br>Body: signed JSON
+
+  RB->>RB: Validate JWT<br>(access + tier + rate limits)
+  RB->>RB: Validate payload signature<br>using project public key on record
+  RB->>RB: Validate validity range<br>(current time within range)
+
+  RB->>DB: Insert metric definition<br>(project_id + key + metadata + weight)
+  DB-->>RB: Insert OK
+
+  RB-->>AB: 201 Created<br>metric_id + stored fields
+  AB-->>AF: Success response<br>(metric created)
+  AF-->>Admin: Show confirmation<br>and updated metric list
+```
