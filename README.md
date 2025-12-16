@@ -11,10 +11,14 @@ Documentation and deliverables for the Project Catalyst funded milestones:
   - Location: [docs/catalyst/fund12-milestone-1.md](docs/catalyst/fund12-milestone-1.md)
 
 ### General Documentation
+- **General Architecture Document**: Comprehensive architecture and design document
+  - Location: [Statur Architecture and Design Document.pdf](docs/Statur%20Architecture%20and%20Design%20Document.pdf)
 - **Architecture Diagrams**: System architecture and component interaction diagrams
   - Location: [docs/diagrams/](docs/diagrams/)
 - **API Documentation**: Backend API specifications
   - Location: [docs/Iagon Reputation Backend API.yaml](docs/Iagon%20Reputation%20Backend%20API.yaml)
+- **Database Schema**: Database design and schema diagrams
+  - Location: [docs/diagrams/reputation-database-schema.svg](docs/diagrams/reputation-database-schema.svg)
 
 ### Future Components
 This repository will be expanded to include:
@@ -24,3 +28,4 @@ This repository will be expanded to include:
 ## Project Links
 - **Project Catalyst**: [Iagon: Statur - Reputation Model](https://projectcatalyst.io/funds/12/cardano-use-cases-product/iagon-statur-reputation-model-for-cardano-ecosystem-that-encourages-positive-behavior)
 - **Milestone Module**: [Project 1200130](https://milestones.projectcatalyst.io/projects/1200130)
+- 

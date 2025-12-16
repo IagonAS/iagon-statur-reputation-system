@@ -87,4 +87,5 @@ High-level architecture for smart contracts covering non-transferable (soulbound
 
 Links:
 - [Section 6 of the Architecture Document](../Statur%20Architecture%20and%20Design%20Document.pdf)
+- [High Level Smart Contract Plan](https://docs.google.com/document/d/1KJeKao4ojMoS8WR_oHc7POLkpwADlIdKHuF_ciY5OPU/edit?tab=t.0)
 
