@@ -1,0 +1,23 @@
+{
+  "name": "statur-reputation-system",
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "render-diagrams": "node src/render-diagrams.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "Statur Reputation System documentation and diagram tooling",
+  "devDependencies": {
+    "@mermaid-js/mermaid-cli": "^11.12.0",
+    "glob": "^13.0.0"
+  },
+  "dependencies": {
+    "puppeteer": "^24.42.0"
+  }
+}

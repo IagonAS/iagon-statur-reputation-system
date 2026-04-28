@@ -54,11 +54,13 @@ The high-level architecture document outlines the system components including th
 
 Links:
 - [Architecture and Design Document](../Statur%20Architecture%20and%20Design%20Document.pdf)
-- [Architecture Diagram (Mermaid)](../diagrams/architecture.md)
+- [Diagrams Index](../diagrams/README.md)
+- [Architecture Diagram (Mermaid source)](../diagrams/architecture.mmd)
 - [Architecture Diagram (SVG)](../diagrams/architecture.svg)
 - [Architecture Diagram (PNG)](../diagrams/architecture.png)
-- [Sequence Flow Example - Metric Definition Creation](../diagrams/sequence-metric-creation.md)
-- [Sequence Flow Example - User Metric Update and Reputation Publication](../diagrams/sequence-metric-account-update.md)
+- [Detailed Architecture Diagram (Mermaid source)](../diagrams/architecture-detailed.mmd)
+- [Sequence Flow Example - Metric Definition Creation (Mermaid source)](../diagrams/sequence-metric-creation.mmd)
+- [Sequence Flow Example - User Metric Update and Reputation Publication (Mermaid source)](../diagrams/sequence-metric-account-update.mmd)
 - [Statur Documentation on Iagon Website (including High-Level Architecture and List of Possible Metrics)](https://docs.iagon.com/products/statur)
 
 ### Database Design and API documentation

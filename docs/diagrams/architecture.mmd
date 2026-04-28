@@ -1,0 +1,78 @@
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "fontFamily": "Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial",
+    "fontSize": "14px",
+    "primaryColor": "#FFFFFF",
+    "primaryTextColor": "#1F1F1F",
+    "lineColor": "#616161"
+  },
+  "flowchart": { "curve": "basis" }
+}}%%
+flowchart LR
+  %% =========================
+  %% Statur Architecture - High Level
+  %% =========================
+
+  %% --- Project-hosted components ---
+  subgraph TB_PROJECTS["Projects"]
+    direction TB
+    P_NOTE["Hosted and operated by participating projects<br>Statur provides a sample frontend and backend as reference"]
+    PF["Project Frontend / Website<br>End-user UI"]
+    PB["Project Backend<br>Business logic and Statur integration"]
+    PF -->|User actions and app API calls| PB
+  end
+
+  %% --- Iagon-hosted Statur components ---
+  subgraph TB_IAGON["Iagon"]
+    direction TB
+    I_NOTE["Hosted and operated by Iagon"]
+    RB["Statur Reputation Backend<br>Python REST API"]
+    DB["Postgres Database<br>Reputation data, metrics, badges, history"]
+    BATCH["Batcher / Update Service<br>Builds and submits blockchain transactions"]
+
+    RB <--> DB
+    RB -->|Canonical state, hashes, update queue| BATCH
+  end
+
+  %% --- Public blockchain layer ---
+  subgraph TB_PUBLIC_CHAIN["Cardano"]
+    direction TB
+    C_NOTE["Public decentralized network"]
+    CARDANO["Cardano Ledger<br>Soulbound tokens, smart contract, reputation hash anchors"]
+  end
+
+  %% --- Cross-boundary flows ---
+  PB -->|JWT for API access<br>ed25519 signatures for write authorization| RB
+  BATCH ==>|Submit| CARDANO
+  PF -->|Reputation reads via Project Backend| PB
+
+  %% --- Component palette ---
+  classDef app fill:#F1F3F5,stroke:#616161,stroke-width:1px,rx:8,ry:8;
+  classDef svc fill:#F1F3F5,stroke:#616161,stroke-width:1px,rx:4,ry:4;
+  classDef db  fill:#F1F3F5,stroke:#616161,stroke-width:1px,stroke-dasharray:3 3,rx:6,ry:6;
+  classDef chain fill:#FFFFFF,stroke:#605D5C,stroke-width:2px,rx:10,ry:10;
+  classDef note fill:#FFFFFF,stroke:#959595,stroke-width:1px,stroke-dasharray:2 2,rx:6,ry:6;
+
+  %% --- Owner palette ---
+  classDef ownerIagon fill:#E2E6FF,stroke:#6B38FB,stroke-width:2px;
+  classDef ownerPublic fill:#FFFFFF,stroke:#605D5C,stroke-width:2px;
+  classDef owner3P fill:#FFFFFF,stroke:#009EE0,stroke-width:2px;
+
+  %% --- Type layer ---
+  class PF,PB app;
+  class RB app;
+  class BATCH svc;
+  class DB db;
+  class CARDANO chain;
+  class P_NOTE,I_NOTE,C_NOTE note;
+
+  %% --- Owner layer ---
+  class PF,PB owner3P;
+  class RB,DB,BATCH ownerIagon;
+  class CARDANO ownerPublic;
+
+  %% --- Boundary styling ---
+  style TB_PROJECTS fill:#FFFFFF,stroke:#009EE0,stroke-width:3px,rx:10,ry:10
+  style TB_IAGON fill:#E2E6FF,stroke:#6B38FB,stroke-width:3px,rx:10,ry:10
+  style TB_PUBLIC_CHAIN fill:#FFFFFF,stroke:#605D5C,stroke-width:2px,rx:10,ry:10

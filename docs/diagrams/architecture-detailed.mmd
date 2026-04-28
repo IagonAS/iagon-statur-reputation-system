@@ -1,0 +1,128 @@
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "fontFamily": "Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial",
+    "fontSize": "14px",
+    "primaryColor": "#FFFFFF",
+    "primaryTextColor": "#1F1F1F",
+    "lineColor": "#616161"
+  },
+  "flowchart": { "curve": "basis" }
+}}%%
+flowchart LR
+
+  %% =========================
+  %% Statur Architecture - Detailed
+  %% =========================
+
+  subgraph TB_USER["End user"]
+    direction TB
+    U_USER["End user<br>pseudonymous"]
+    U_WALLET["Cardano wallet<br>Authorizes onboarding and exit txs"]
+  end
+
+  subgraph TB_IAGON_PRODUCT["Iagon Statur product"]
+    direction TB
+    IP_FE["Iagon Statur Frontend<br>Public reputation viewer and onboarding"]
+    IP_BE["Iagon Statur Backend<br>Holds ed25519 signing key<br>Computes and signs metric updates"]
+    IP_FE -->|REST/HTTPS| IP_BE
+  end
+
+  subgraph TB_PROJECT["Integrating project"]
+    direction TB
+    P_FE["Project Frontend<br>Project's user-facing UI"]
+    P_BE["Project Backend<br>Holds ed25519 signing key<br>Computes and signs metric updates"]
+    P_FE -->|REST/HTTPS| P_BE
+  end
+
+  subgraph TB_ANALYTICS["Analytics consumer"]
+    direction TB
+    A_FE["Analytics Frontend / Dashboard<br>Internal or external consumers"]
+    A_BE["Analytics Backend<br>Reads reputation; cross-references on-chain addresses<br>with internal and external data"]
+    A_FE -->|REST/HTTPS| A_BE
+  end
+
+  subgraph TB_REPUTATION["Statur Reputation Backend"]
+    direction TB
+    I_API["REST API layer<br>Accounts, Projects, Metrics, Badges, Scores"]
+    I_AUTH["Auth and signature middleware<br>JWT + ed25519 signature verification"]
+    I_SVC["Service layer<br>Scoring, audit, tier enforcement"]
+    I_MODELS["ORM<br>Account, Project, Metric, Badge, History"]
+    I_CACHE["Score cache"]
+    I_DB["Postgres database<br>Reputation data, history, memberships"]
+    I_BATCHER["Batcher / update service<br>Builds Cardano txs and publishes reputation hashes"]
+
+    I_API --> I_AUTH
+    I_API --> I_SVC
+    I_SVC --> I_MODELS
+    I_SVC -.-> I_CACHE
+    I_MODELS <--> I_DB
+    I_BATCHER --> I_MODELS
+  end
+
+  subgraph TB_PUBLIC_CHAIN["Cardano - public network"]
+    direction TB
+    C_LEDGER["Cardano ledger<br>UTxO state and tx history"]
+    subgraph TB_CONTRACTS["Statur smart contracts"]
+      direction TB
+      C_REP["Reputation validator<br>Soulbound NFT and reputation hash"]
+      C_BADGE["Badge validator<br>Project badge issuance"]
+      C_FEE["Fee validator<br>User-funded fee UTxOs"]
+    end
+  end
+
+  %% --- User flows ---
+  U_USER -->|Browses| IP_FE
+  U_USER -->|Browses| P_FE
+  U_WALLET ==>|Onboarding / exit tx| C_LEDGER
+
+  %% --- Backend integrations with the Reputation Backend ---
+  IP_BE -->|REST/HTTPS<br>JWT + signed metric updates| I_API
+  P_BE -->|REST/HTTPS<br>JWT + signed metric updates| I_API
+  A_BE -->|REST/HTTPS<br>JWT, read-only| I_API
+
+  %% --- Reputation Backend publishing on-chain ---
+  I_BATCHER ==>|Submit reputation hash updates| C_LEDGER
+
+  %% --- Component palette ---
+  classDef app fill:#F1F3F5,stroke:#616161,stroke-width:1px,rx:8,ry:8;
+  classDef svc fill:#F1F3F5,stroke:#616161,stroke-width:1px,rx:4,ry:4;
+  classDef db  fill:#F1F3F5,stroke:#616161,stroke-width:1px,stroke-dasharray:3 3,rx:6,ry:6;
+  classDef chain fill:#FFFFFF,stroke:#605D5C,stroke-width:2px,rx:10,ry:10;
+  classDef actor fill:#FFFFFF,stroke:#616161,stroke-width:1px,rx:18,ry:18;
+
+  %% --- Owner palette ---
+  classDef ownerIagon fill:#E2E6FF,stroke:#6B38FB,stroke-width:2px;
+  classDef ownerPublic fill:#FFFFFF,stroke:#605D5C,stroke-width:2px;
+  classDef owner3P fill:#FFFFFF,stroke:#009EE0,stroke-width:2px;
+
+  %% --- Overlays ---
+  classDef readOnly fill:#F1F3F5,stroke:#959595,stroke-width:1px,stroke-dasharray:2 2;
+
+  %% --- Type layer ---
+  class U_USER,U_WALLET actor;
+  class IP_FE,P_FE,A_FE app;
+  class IP_BE,P_BE,A_BE app;
+  class I_API,I_AUTH,I_SVC,I_MODELS,I_CACHE,I_BATCHER svc;
+  class I_DB db;
+  class C_LEDGER chain;
+  class C_REP,C_BADGE,C_FEE svc;
+
+  %% --- Owner layer ---
+  class IP_FE,IP_BE ownerIagon;
+  class P_FE,P_BE owner3P;
+  class A_FE,A_BE owner3P;
+  class I_API,I_AUTH,I_SVC,I_MODELS,I_CACHE,I_DB,I_BATCHER ownerIagon;
+  class C_LEDGER,C_REP,C_BADGE,C_FEE ownerPublic;
+
+  %% --- Overlays applied ---
+  class A_BE readOnly;
+
+  %% --- Boundary styles ---
+  style TB_USER fill:#FFFFFF,stroke:#959595,stroke-width:2px,stroke-dasharray:6 3,rx:10,ry:10
+  style TB_IAGON_PRODUCT fill:#E2E6FF,stroke:#6B38FB,stroke-width:3px,rx:10,ry:10
+  style TB_PROJECT fill:#FFFFFF,stroke:#009EE0,stroke-width:3px,rx:10,ry:10
+  style TB_ANALYTICS fill:#FFFFFF,stroke:#009EE0,stroke-width:3px,rx:10,ry:10
+  style TB_REPUTATION fill:#E2E6FF,stroke:#6B38FB,stroke-width:3px,rx:10,ry:10
+  style TB_PUBLIC_CHAIN fill:#FFFFFF,stroke:#605D5C,stroke-width:2px,rx:10,ry:10
+  style TB_CONTRACTS fill:#FFFFFF,stroke:#605D5C,stroke-width:2px,stroke-dasharray:4 2,rx:8,ry:8
