@@ -1,0 +1,38 @@
+sequenceDiagram
+  autonumber
+  participant PB as Project Backend<br>(project-hosted)
+  participant RB as Iagon Reputation Backend<br>(Iagon-hosted)
+  participant DB as Postgres Database<br>(off-chain canonical store)
+  participant WALLET as User Wallet<br>(keeper / holder)
+  participant OP as Operator / Batcher<br>(Iagon-hosted)
+  participant BADGE as Badge Contract on Cardano<br>(CIP-68 soulbound)
+
+  Note over PB,DB: Phase 1 - Create a badge definition (template). Off-chain.
+
+  PB->>RB: Request JWT access token<br>using API key
+  RB-->>PB: Return JWT access token<br>(time-limited)
+  PB->>PB: Build badge definition<br>(name, image URI, optional extra)<br>and sign payload with ed25519 key
+  PB->>RB: POST /projects/{id}/badges/<br>Authorization: Bearer JWT<br>Body: signed payload
+  RB->>RB: Validate JWT, tier badge limit, signature
+  RB->>DB: Create BadgeEntry<br>(no accounts attached yet)
+  DB-->>RB: BadgeEntry stored
+  RB-->>PB: 201 Created<br>badge_id
+
+  Note over PB,DB: Phase 2 - Assign the badge to an account. Off-chain.
+
+  PB->>RB: GET badges/{badge_id}/accounts/{pkh}/nonce/
+  RB-->>PB: 200 message to sign<br>{badge_id}:{pkh}:{nonce}
+  PB->>PB: Sign message with ed25519 key
+  PB->>RB: PUT badges/{badge_id}/accounts/{pkh}/<br>Body: key, sig, msg, preimage
+  RB->>RB: Verify signature and nonce freshness
+  RB->>DB: Create badge-to-account link<br>(idempotent; no-op if already held)
+  DB-->>RB: Link stored
+  RB-->>PB: 204 No Content
+
+  Note over WALLET,BADGE: Phase 3 - On-chain anchoring via badge.ak.<br>Implemented in the contract but NOT yet wired into the live flow,<br>and outside the June 2025 audit scope.
+
+  WALLET->>BADGE: EntryBadgeMint redeemer<br>(keeper signs)
+  BADGE->>BADGE: Mint reference token to script<br>(prefix 100, BadgeDatum: keeper, pointer, empty badges)<br>and soulbound holder token to wallet (prefix 44203)
+  OP->>BADGE: BadgeMint + UpdateBadge redeemers<br>(operator + keeper multisig)
+  BADGE->>BADGE: Update on-chain badges list in datum<br>(record earned badges)
+  WALLET->>BADGE: RemoveBadge redeemer<br>(keeper signs to burn and exit)

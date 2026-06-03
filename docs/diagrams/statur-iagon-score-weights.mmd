@@ -1,0 +1,59 @@
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "fontFamily": "Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial",
+    "fontSize": "14px",
+    "primaryColor": "#FFFFFF",
+    "primaryTextColor": "#1F1F1F",
+    "lineColor": "#616161"
+  },
+  "flowchart": { "curve": "basis" }
+}}%%
+flowchart LR
+  %% =========================
+  %% Iagon Statur - Reputation Score Category Weights
+  %% Iagon's own instantiation of the Statur scoring methodology.
+  %% Weights are defined at the category level - subcategory weights and
+  %% value scales are internal and intentionally out of scope here.
+  %% Category weights sum to 1.0.
+  %% =========================
+
+  subgraph TB_IAGON["Iagon Statur instantiation"]
+    direction LR
+    SCORE["Iagon Statur Reputation Score - Karma points<br>Weighted average of category scores<br>Sum of category weights = 1.0"]
+
+    C_HOLD["Token Holder<br>Weight 0.28"]
+    C_LIQ["Liquidity Provider<br>Weight 0.18"]
+    C_NODE["Node Operator<br>Weight 0.13"]
+    C_STAKE["Token Staker - Operator/Delegator<br>Weight 0.11"]
+    C_TRADE["Token Trader<br>Weight 0.10"]
+    C_DELEG["Stake Pool Delegator<br>Weight 0.08"]
+    C_BADGE["Badges<br>Weight 0.07"]
+    C_STORE["Storage Subscriber<br>Weight 0.05"]
+  end
+
+  SCORE -->|0.28| C_HOLD
+  SCORE -->|0.18| C_LIQ
+  SCORE -->|0.13| C_NODE
+  SCORE -->|0.11| C_STAKE
+  SCORE -->|0.10| C_TRADE
+  SCORE -->|0.08| C_DELEG
+  SCORE -->|0.07| C_BADGE
+  SCORE -->|0.05| C_STORE
+
+  %% --- Component palette ---
+  classDef app fill:#F1F3F5,stroke:#616161,stroke-width:1px,rx:8,ry:8;
+  classDef svc fill:#F1F3F5,stroke:#616161,stroke-width:1px,rx:4,ry:4;
+
+  %% --- Owner palette ---
+  classDef ownerIagon fill:#E2E6FF,stroke:#6B38FB,stroke-width:2px;
+
+  %% --- Type layer ---
+  class SCORE app;
+  class C_HOLD,C_LIQ,C_NODE,C_STAKE,C_TRADE,C_DELEG,C_BADGE,C_STORE svc;
+
+  %% --- Owner layer ---
+  class SCORE ownerIagon;
+
+  %% --- Boundary styling ---
+  style TB_IAGON fill:#E2E6FF,stroke:#6B38FB,stroke-width:3px,rx:10,ry:10

@@ -45,6 +45,20 @@ This sequence diagram describes how a project updates the reputation metrics of 
 - Source: [`sequence-metric-account-update.mmd`](./sequence-metric-account-update.mmd)
 - Rendered: [`sequence-metric-account-update.svg`](./sequence-metric-account-update.svg) · [`sequence-metric-account-update.png`](./sequence-metric-account-update.png)
 
+## Iagon Statur Score — Category Weights
+
+This diagram captures Iagon's own instantiation of the Statur scoring methodology. While Statur the solution is metric-agnostic (each project defines its own metrics and weights), Iagon prototypes Statur for its own ecosystem using the category weights shown here. The reputation score (karma points) is the weighted average of the category scores; the category weights sum to 1.0. Subcategory weights and value scales are internal and intentionally out of scope at this stage.
+
+- Source: [`statur-iagon-score-weights.mmd`](./statur-iagon-score-weights.mmd)
+- Rendered: [`statur-iagon-score-weights.png`](./statur-iagon-score-weights.png)
+
+## Sequence — Badge Lifecycle
+
+This sequence diagram shows the full badge lifecycle: creating a badge definition and assigning it to an account (both off-chain, via the reputation backend API), followed by the on-chain anchoring provided by the `badge.ak` soulbound contract (keeper + operator model). The on-chain phase is implemented in the contract but is not yet wired into the live update flow and was outside the June 2025 audit scope. A fuller narrative lives in [`../badge-lifecycle.md`](../badge-lifecycle.md).
+
+- Source: [`sequence-badge-lifecycle.mmd`](./sequence-badge-lifecycle.mmd)
+- Rendered: [`sequence-badge-lifecycle.png`](./sequence-badge-lifecycle.png)
+
 ## Reputation Database Schema
 
 The reputation database schema is generated from the Django models in `iagon-reputation-backend` (graphviz output, not mermaid). It is included here as a static rendered artifact.

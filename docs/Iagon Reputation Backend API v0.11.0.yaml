@@ -1,0 +1,3830 @@
+openapi: 3.0.3
+info:
+  title: Iagon Reputation Backend API
+  version: v0.11.0
+  description: A stand alone backend that handles reputation data.
+paths:
+  /api/v1/accounts/{public_key_hash}/:
+    get:
+      operationId: account_retrieve
+      description: Returns the account policy_id, token_name, and is_active flag.
+      summary: Retrieve account metadata
+      parameters:
+      - in: path
+        name: public_key_hash
+        schema:
+          type: string
+        description: The account's public key hash (resource ID).
+        required: true
+      tags:
+      - Accounts
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountTokenName'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+    post:
+      operationId: account_deactivate
+      description: Deactivates the account. Requires a valid burn proof payload. If
+        the account is already inactive, returns 204.
+      summary: Deactivate account (burn proof required)
+      parameters:
+      - in: path
+        name: public_key_hash
+        schema:
+          type: string
+        description: The account's public key hash (resource ID).
+        required: true
+      tags:
+      - Accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountBurn'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AccountBurn'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AccountBurn'
+        required: true
+      responses:
+        '204':
+          description: No content
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+    put:
+      operationId: account_create_idempotent
+      description: Creates the account at this public key hash. If the account already
+        exists, returns the existing account. If a different token_name is supplied
+        for an existing account, returns 409.
+      summary: Create account (idempotent)
+      parameters:
+      - in: path
+        name: public_key_hash
+        schema:
+          type: string
+        description: The account's public key hash (resource ID).
+        required: true
+      tags:
+      - Accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountMint'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AccountMint'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AccountMint'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountTokenName'
+          description: ''
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountTokenName'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+    patch:
+      operationId: account_reactivate
+      description: Reactivates a previously deactivated account. Requires a valid
+        mint proof payload. Returns 409 if the account is already active.
+      summary: Reactivate account (mint proof required)
+      parameters:
+      - in: path
+        name: public_key_hash
+        schema:
+          type: string
+        description: The account's public key hash (resource ID).
+        required: true
+      tags:
+      - Accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAccountPatch'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAccountPatch'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAccountPatch'
+      responses:
+        '204':
+          description: No content
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+    delete:
+      operationId: account_deactivate_deprecated
+      description: This endpoint forwards internally to POST and has identical behavior.
+      summary: Deactivate account [deprecated]
+      parameters:
+      - in: path
+        name: public_key_hash
+        schema:
+          type: string
+        description: The account's public key hash (resource ID).
+        required: true
+      tags:
+      - Accounts
+      deprecated: true
+      responses:
+        '204':
+          description: No content
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/accounts/{public_key_hash}/audit/:
+    get:
+      operationId: accounts_audit_list
+      description: |-
+        GET /api/accounts/{public_key_hash}/audit/
+
+        Leader-scoped. Returns audit logs for the specified account.
+        Requester must lead a project the account belongs to.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: public_key_hash
+        schema:
+          type: string
+        required: true
+      tags:
+      - Accounts
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAuditLogList'
+          description: ''
+  /api/v1/accounts/{public_key_hash}/badges/:
+    get:
+      operationId: account_badges_list
+      description: Returns a paginated list of badges assigned to the given account.
+      summary: List badges assigned to an account
+      parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Page number (1-indexed).
+      - in: path
+        name: public_key_hash
+        schema:
+          type: string
+        description: Account public key hash.
+        required: true
+      tags:
+      - Accounts
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBadgeEntryList'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/accounts/{public_key_hash}/data/:
+    get:
+      operationId: account_reputation_data_retrieve
+      description: Returns the canonical reputation data payload for the given account.
+      summary: Retrieve canonical reputation data
+      parameters:
+      - in: path
+        name: public_key_hash
+        schema:
+          type: string
+        description: Account public key hash.
+        required: true
+      tags:
+      - Accounts
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/accounts/{public_key_hash}/hash/:
+    get:
+      operationId: account_hash_retrieve
+      description: Returns the Blake2b-256 hash of the canonical JSON representation
+        of the account's reputation data.
+      summary: Retrieve reputation data hash
+      parameters:
+      - in: path
+        name: public_key_hash
+        schema:
+          type: string
+        description: Account public key hash.
+        required: true
+      tags:
+      - Accounts
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hash'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/accounts/{public_key_hash}/history/:
+    get:
+      operationId: accounts_history_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: public_key_hash
+        schema:
+          type: string
+        required: true
+      tags:
+      - Accounts
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedHistoryEntryList'
+          description: ''
+  /api/v1/accounts/{public_key_hash}/projects/:
+    get:
+      operationId: accounts_projects_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: public_key_hash
+        schema:
+          type: string
+        required: true
+      tags:
+      - Accounts
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProjectEntryListList'
+          description: ''
+  /api/v1/accounts/{public_key_hash}/projects/{project_id}/:
+    post:
+      operationId: account_project_leave
+      description: Marks the account's membership for this project as inactive. Requires
+        a valid CIP-8 signature over the nonce message.
+      summary: Deactivate account membership (idempotent)
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        description: Project UUID.
+        required: true
+      - in: path
+        name: public_key_hash
+        schema:
+          type: string
+        description: Account public key hash.
+        required: true
+      tags:
+      - Accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectMembership'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProjectMembership'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProjectMembership'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+    patch:
+      operationId: account_project_join
+      description: Adds the account to the project or reactivates its membership.
+        Requires a valid CIP-8 signature over the nonce message.
+      summary: Add (or reactivate) account membership (idempotent)
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        description: Project UUID.
+        required: true
+      - in: path
+        name: public_key_hash
+        schema:
+          type: string
+        description: Account public key hash.
+        required: true
+      tags:
+      - Accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProjectMembership'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProjectMembership'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedProjectMembership'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+    delete:
+      operationId: account_project_leave_deprecated
+      description: Marks the account's membership for this project as inactive. Requires
+        a valid CIP-8 signature over the nonce message.
+      summary: Deactivate account membership (idempotent) [deprecated]
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        description: Project UUID.
+        required: true
+      - in: path
+        name: public_key_hash
+        schema:
+          type: string
+        description: Account public key hash.
+        required: true
+      tags:
+      - Accounts
+      deprecated: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/accounts/{public_key_hash}/projects/{project_id}/nonce/:
+    get:
+      operationId: account_project_membership_nonce
+      description: 'Returns a short-lived message the client must CIP-8 sign. The
+        message format is: `{project_id}:{public_key_hash}:{nonce}`.'
+      summary: Get nonce message to sign for membership change
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        description: Project UUID.
+        required: true
+      - in: path
+        name: public_key_hash
+        schema:
+          type: string
+        description: Account public key hash.
+        required: true
+      tags:
+      - Accounts
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/accounts/{public_key_hash}/score/:
+    get:
+      operationId: account_score_retrieve
+      description: Returns the computed reputation score(s) for the given account
+        public key hash.
+      summary: Retrieve account reputation score
+      parameters:
+      - in: path
+        name: public_key_hash
+        schema:
+          type: string
+        description: Account public key hash.
+        required: true
+      tags:
+      - Accounts
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scores'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/audit/:
+    get:
+      operationId: audit_list
+      description: |-
+        GET /api/audit/
+
+        Admin-only. Returns a paginated, filterable list of all audit log entries.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Audit
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAuditLogList'
+          description: ''
+  /api/v1/batcher/accounts/:
+    get:
+      operationId: batcher_accounts_list
+      description: |
+        Returns a paginated list of accounts matching the reputation policy.
+
+        Each entry contains:
+        - `public_key_hash` (Cardano public key hash)
+        - `token_name` (unique token identifier)
+        - `data_hash` (Blake2b-256 of the canonical JSON payload)
+      summary: 'Batcher: list accounts with data hash'
+      parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Page number (1-based).
+      tags:
+      - Batcher
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBatcherAccountList'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/clients/:
+    post:
+      operationId: client_create
+      description: Admin-only (tier >= admin). Creates a new API client and returns
+        its API key and tier.
+      summary: Create API client
+      tags:
+      - Clients
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ClientCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ClientCreate'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientCreateResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/clients/{username}/:
+    patch:
+      operationId: client_partial_update
+      description: 'Admin-only: update the client''s tier and enforce tier limits.'
+      summary: Change client tier
+      parameters:
+      - in: path
+        name: username
+        schema:
+          type: string
+        description: Public client identifier (the client's associated username).
+        required: true
+      tags:
+      - Clients
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedClientTier'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedClientTier'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedClientTier'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientTier'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+    delete:
+      operationId: client_revoke
+      description: 'Admin-only: revoke a client by marking it inactive.'
+      summary: Revoke client
+      parameters:
+      - in: path
+        name: username
+        schema:
+          type: string
+        description: Public client identifier (the client's associated username).
+        required: true
+      tags:
+      - Clients
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: Client revoked (set inactive).
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/clients/{username}/rotations/:
+    post:
+      operationId: client_rotate_key
+      description: Admin-only. Revokes the current client key and returns a freshly
+        minted API key.
+      summary: Rotate a client API key
+      parameters:
+      - in: path
+        name: username
+        schema:
+          type: string
+        description: Public client identifier (the client's associated username).
+        required: true
+      tags:
+      - Clients
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientRotateResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/health/:
+    get:
+      operationId: health_check
+      description: Public liveness endpoint for monitoring. Verifies database and
+        cache connectivity. Returns 200 when all services are reachable, 503 when
+        one or more services are unavailable.
+      summary: Health Check
+      tags:
+      - Utility
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+          description: ''
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthUnavailable'
+          description: ''
+  /api/v1/projects/:
+    get:
+      operationId: project_list
+      description: Returns an ordered list of all projects.
+      summary: List all projects
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Projects
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProjectEntryList'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+    post:
+      operationId: project_create
+      description: |
+        Project management endpoints:
+
+        - **POST** `/api/projects/` creates a new project from a signed payload.
+        - **GET** `/api/projects/` lists all projects.
+      summary: Create a new project via a valid public key
+      tags:
+      - Projects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignedPayload'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SignedPayload'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SignedPayload'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectEntry'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/projects/{project_id}/:
+    get:
+      operationId: project_retrieve
+      description: Get the full project data for the given project ID.
+      summary: Retrieve a project
+      parameters:
+      - in: query
+        name: include_inactive
+        schema:
+          type: boolean
+        description: 'If true, include accounts whose ProjectAccountStatus for this
+          project is inactive. Default: false.'
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        description: UUID of the project
+        required: true
+      tags:
+      - Projects
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectEntry'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+    post:
+      operationId: project_deactivate
+      summary: Deactivate a project (idempotent)
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        description: UUID of the project
+        required: true
+      tags:
+      - Projects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignedPayload'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SignedPayload'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SignedPayload'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+    patch:
+      operationId: project_partial_update
+      description: Patch one or more mutable fields of an existing project. Requires
+        a valid signed payload.
+      summary: Partially update a project
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        description: UUID of the project
+        required: true
+      tags:
+      - Projects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSignedPayload'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSignedPayload'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSignedPayload'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectEntry'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+    delete:
+      operationId: project_deactivate_deprecated
+      summary: Deactivate a project (idempotent) [deprecated]
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        description: UUID of the project
+        required: true
+      tags:
+      - Projects
+      security:
+      - jwtAuth: []
+      deprecated: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/projects/{project_id}/accounts/:
+    get:
+      operationId: project_accounts_list
+      description: Returns a paginated list of **Account** objects that have joined
+        the specified project.
+      summary: List accounts for a project
+      parameters:
+      - in: query
+        name: include_inactive
+        schema:
+          type: boolean
+        description: 'If true, include accounts whose ProjectAccountStatus for this
+          project is inactive. Default: false.'
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Results page (1-indexed).
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        description: UUID of the project.
+        required: true
+      tags:
+      - Projects
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProjectAccountListList'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/projects/{project_id}/accounts/{public_key_hash}/:
+    get:
+      operationId: project_account_existence_check
+      description: Returns the account token data if the account exists and is associated
+        with the given project. Useful for existence checks from the project side.
+      summary: Check that an account is a member of a project
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        description: The UUID of the project.
+        required: true
+      - in: path
+        name: public_key_hash
+        schema:
+          type: string
+        description: The account's public key hash (serves as the resource ID).
+        required: true
+      tags:
+      - Projects
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountTokenName'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+    patch:
+      operationId: project_account_reputation_update
+      description: Applies a signed, canonical JSON update to all active metric entries
+        for the given account in the specified project. Requires the project public
+        key to sign the payload.
+      summary: Update An Account's Reputation For Some Project
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        description: The UUID of the project.
+        required: true
+      - in: path
+        name: public_key_hash
+        schema:
+          type: string
+        description: The account's public key hash (serves as the resource ID).
+        required: true
+      tags:
+      - Projects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSignedPayload'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSignedPayload'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSignedPayload'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/projects/{project_id}/accounts/{public_key_hash}/data/:
+    get:
+      operationId: project_account_metric_data
+      description: Returns all active metric entries for a given account **within
+        a specific project**. Only entries whose metric and membership are active
+        are included, ordered by the metric key.
+      summary: List metric entries for an account in a project
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        description: The UUID of the project.
+        required: true
+      - in: path
+        name: public_key_hash
+        schema:
+          type: string
+        description: The account's public key hash (serves as the resource ID).
+        required: true
+      tags:
+      - Projects
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProjectAccountMetricEntry'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/projects/{project_id}/accounts/{public_key_hash}/score/:
+    get:
+      operationId: project_account_score_retrieve
+      description: Returns the reputation score for the specified account in the given
+        project.
+      summary: Get an account's score if it exists inside some project.
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        description: The UUID of the project.
+        required: true
+      - in: path
+        name: public_key_hash
+        schema:
+          type: string
+        description: The account's public key hash (serves as the resource ID).
+        required: true
+      tags:
+      - Projects
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Score'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/projects/{project_id}/accounts/data/:
+    get:
+      operationId: project_accounts_data_list
+      description: Returns a paginated list of **Account's Data** objects that have
+        joined the specified project.
+      summary: List accounts data for a project
+      parameters:
+      - in: query
+        name: include_inactive
+        schema:
+          type: boolean
+        description: 'If true, include accounts whose ProjectAccountStatus for this
+          project is inactive. Default: false.'
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Results page (1-indexed).
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        description: UUID of the project.
+        required: true
+      tags:
+      - Projects
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProjectAccountDataListList'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/projects/{project_id}/accounts/score/:
+    get:
+      operationId: project_accounts_score_list
+      description: Returns a paginated list of **Account's Score** objects that have
+        joined the specified project.
+      summary: List accounts score for a project
+      parameters:
+      - in: query
+        name: include_inactive
+        schema:
+          type: boolean
+        description: 'If true, include accounts whose ProjectAccountStatus for this
+          project is inactive. Default: false.'
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Results page (1-indexed).
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        description: UUID of the project.
+        required: true
+      tags:
+      - Projects
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProjectAccountScoreListList'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/projects/{project_id}/audit/:
+    get:
+      operationId: projects_audit_list
+      description: |-
+        GET /api/projects/{project_id}/audit/
+
+        Leader-scoped. Returns audit logs related to the specified project.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Projects
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAuditLogList'
+          description: ''
+  /api/v1/projects/{project_id}/badges/:
+    get:
+      operationId: projects_badges_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Badges
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBadgeEntryList'
+          description: ''
+    post:
+      operationId: project_badge_create
+      description: Create a new `BadgeEntry` with a `name`, `image`, and optional
+        `extra` data. The project is taken from the URL; accounts are added to the
+        badge later.
+      summary: Create a new badge for a project
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Badges
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignedPayload'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SignedPayload'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SignedPayload'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadgeEntry'
+          description: Badge created successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/projects/{project_id}/badges/{badge_id}/:
+    get:
+      operationId: badge_retrieve
+      description: |
+        **GET** returns a public representation of the badge, including any extra attributes under an `attributes` object.
+
+        **PATCH** allows a project to update *only* the `name`, `image`, and `extra` fields; all other fields are read-only.
+      summary: Retrieve or partially update a badge
+      parameters:
+      - in: path
+        name: badge_id
+        schema:
+          type: string
+          format: uuid
+        description: UUID of the badge
+        required: true
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        description: UUID of the project
+        required: true
+      tags:
+      - Badges
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadgePublic'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+    patch:
+      operationId: badge_partial_update
+      description: |
+        **GET** returns a public representation of the badge, including any extra attributes under an `attributes` object.
+
+        **PATCH** allows a project to update *only* the `name`, `image`, and `extra` fields; all other fields are read-only.
+      summary: Retrieve or partially update a badge
+      parameters:
+      - in: path
+        name: badge_id
+        schema:
+          type: string
+          format: uuid
+        description: UUID of the badge
+        required: true
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        description: UUID of the project
+        required: true
+      tags:
+      - Badges
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSignedPayload'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSignedPayload'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSignedPayload'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadgeEntry'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/projects/{project_id}/badges/{badge_id}/accounts/:
+    get:
+      operationId: projects_badges_accounts_list
+      description: Returns a paginated list of accounts that currently hold the specified
+        badge.
+      summary: List accounts for a badge
+      parameters:
+      - in: path
+        name: badge_id
+        schema:
+          type: string
+          format: uuid
+        description: UUID of the badge
+        required: true
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Results page (1-indexed).
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        description: UUID of the project
+        required: true
+      tags:
+      - Badges
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBadgeAccountListList'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/projects/{project_id}/badges/{badge_id}/accounts/{public_key_hash}/:
+    put:
+      operationId: badge_account_assign
+      description: Verifies the signed nonce and idempotently creates the badge↔account
+        relationship. No-op if already assigned.
+      summary: Assign badge to account (idempotent)
+      parameters:
+      - in: path
+        name: badge_id
+        schema:
+          type: string
+          format: uuid
+        description: UUID of the badge
+        required: true
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        description: UUID of the project
+        required: true
+      - in: path
+        name: public_key_hash
+        schema:
+          type: string
+        description: PKH of the account
+        required: true
+      tags:
+      - Badges
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BadgeAssignment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BadgeAssignment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BadgeAssignment'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: Badge successfully assigned
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/projects/{project_id}/badges/{badge_id}/accounts/{public_key_hash}/nonce/:
+    get:
+      operationId: badge_account_nonce
+      description: Returns a short-lived message the client must sign to prove authorization
+        for assigning a badge to an account. The format is `{badge_id}:{public_key_hash}:{nonce}`.
+      summary: Get nonce message to sign for badge assignment
+      parameters:
+      - in: path
+        name: badge_id
+        schema:
+          type: string
+          format: uuid
+        description: UUID of the badge
+        required: true
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        description: UUID of the project
+        required: true
+      - in: path
+        name: public_key_hash
+        schema:
+          type: string
+        description: PKH of the account
+        required: true
+      tags:
+      - Badges
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/projects/{project_id}/badges/{badge_id}/audit/:
+    get:
+      operationId: projects_badges_audit_list
+      description: |-
+        GET /api/projects/{project_id}/badges/{badge_id}/audit/
+
+        Leader-scoped. Returns audit logs for the specified badge.
+      parameters:
+      - in: path
+        name: badge_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Badges
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAuditLogList'
+          description: ''
+  /api/v1/projects/{project_id}/metrics/:
+    get:
+      operationId: metric_list
+      description: Returns all `FloatMetric` entries defined for the given project.
+      summary: List metrics for a project
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        description: UUID of the project
+        required: true
+      tags:
+      - Metrics
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedFloatMetricList'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+    post:
+      operationId: metric_create
+      description: Creates a new `FloatMetric` scoped to the given project using a
+        signed payload. If a metric with the same `(project, key)` already exists,
+        returns 200 with the existing metric instead of creating a duplicate.
+      summary: Create or fetch metric for a project
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        description: UUID of the project
+        required: true
+      tags:
+      - Metrics
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignedPayload'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SignedPayload'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SignedPayload'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FloatMetric'
+          description: ''
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FloatMetric'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/projects/{project_id}/metrics/{key}/:
+    get:
+      operationId: project_metric_retrieve
+      description: Returns an existing `FloatMetric`, identified by its `key` within
+        the given project.
+      summary: Get a metric for a project
+      parameters:
+      - in: path
+        name: key
+        schema:
+          type: string
+        description: Metric key within the project
+        required: true
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        description: UUID of the project
+        required: true
+      tags:
+      - Metrics
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FloatMetric'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+    patch:
+      operationId: project_metric_partial_update
+      description: Partially updates fields of an existing `FloatMetric`, identified
+        by its `key` within the given project.
+      summary: Update a metric for a project
+      parameters:
+      - in: path
+        name: key
+        schema:
+          type: string
+        description: Metric key within the project
+        required: true
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        description: UUID of the project
+        required: true
+      tags:
+      - Metrics
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSignedPayload'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSignedPayload'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSignedPayload'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FloatMetric'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/projects/{project_id}/metrics/{key}/audit/:
+    get:
+      operationId: projects_metrics_audit_list
+      description: |-
+        GET /api/projects/{project_id}/metrics/{key}/audit/
+
+        Leader-scoped. Returns audit logs for the specified metric.
+      parameters:
+      - in: path
+        name: key
+        schema:
+          type: string
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Metrics
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAuditLogList'
+          description: ''
+  /api/v1/projects/{project_id}/tier/:
+    get:
+      operationId: project_tier_retrieve
+      description: Returns subscription tier and limits for the project leader (Client)
+        associated with the given project.
+      summary: Get subscription tier info for a project
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          type: string
+          format: uuid
+        description: UUID of the project
+        required: true
+      tags:
+      - Projects
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectTier'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/status/:
+    get:
+      operationId: status_check
+      description: Public status endpoint returning deployment metadata and runtime
+        flags.
+      summary: Status Check
+      tags:
+      - Utility
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+          description: ''
+  /api/v1/tiers/:
+    get:
+      operationId: tier_limits
+      description: Public endpoint returning rate limits and resource quotas for every
+        tier.
+      summary: Tier Limits
+      tags:
+      - Utility
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TiersResponse'
+          description: ''
+  /api/v1/token/:
+    post:
+      operationId: token_obtain_via_client_key
+      description: Exchanges a client API key for a JWT access/refresh token pair.
+        The token includes the client's tier claim.
+      summary: Obtain JWT via Client key
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientToken'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ClientToken'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ClientToken'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+  /api/v1/token/refresh/:
+    post:
+      operationId: token_refresh
+      description: Exchanges a refresh token for a new access token. If refresh rotation
+        is enabled, also returns a rotated refresh token.
+      summary: Refresh JWT Access Token
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefreshResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+components:
+  schemas:
+    AccountBurn:
+      type: object
+      properties:
+        tx_cbor:
+          type: string
+          writeOnly: true
+          description: A valid transaction in CBOR proving the burn validation.
+          maxLength: 16384
+      required:
+      - tx_cbor
+    AccountMint:
+      type: object
+      properties:
+        public_key_hash:
+          type: string
+          description: Unique public key hash.
+          maxLength: 56
+          minLength: 56
+        token_name:
+          type: string
+          description: A unique token identifier.
+          maxLength: 64
+          minLength: 64
+        tx_cbor:
+          type: string
+          writeOnly: true
+          description: A valid transaction in CBOR proving the mint validation.
+          maxLength: 16384
+      required:
+      - public_key_hash
+      - token_name
+      - tx_cbor
+    AccountTokenName:
+      type: object
+      properties:
+        policy_id:
+          type: string
+          description: Policy Id associated with this account.
+        token_name:
+          type: string
+          description: Token name associated with this account.
+        is_active:
+          type: boolean
+          description: Is the account active?
+        created_at:
+          type: string
+          format: date-time
+          description: When the account was created.
+        updated_at:
+          type: string
+          format: date-time
+          description: When the account was last modified.
+      required:
+      - created_at
+      - is_active
+      - policy_id
+      - token_name
+      - updated_at
+    ActionEnum:
+      enum:
+      - create
+      - update
+      - delete
+      - activate
+      - deactivate
+      - assign
+      - unassign
+      type: string
+      description: |-
+        * `create` - Create
+        * `update` - Update
+        * `delete` - Delete
+        * `activate` - Activate
+        * `deactivate` - Deactivate
+        * `assign` - Assign
+        * `unassign` - Unassign
+    AuditLog:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        entity_type:
+          allOf:
+          - $ref: '#/components/schemas/EntityTypeEnum'
+          readOnly: true
+        entity_id:
+          type: string
+          readOnly: true
+          description: String representation of the entity PK (UUID or int).
+        action:
+          allOf:
+          - $ref: '#/components/schemas/ActionEnum'
+          readOnly: true
+        actor_id:
+          type: string
+          format: uuid
+          readOnly: true
+        data:
+          readOnly: true
+          description: Before/after snapshot or full entity state.
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - action
+      - actor_id
+      - created_at
+      - data
+      - entity_id
+      - entity_type
+      - id
+    BadgeAccountList:
+      type: object
+      description: Lightweight read-only view of accounts that hold a given badge.
+      properties:
+        public_key_hash:
+          type: string
+          readOnly: true
+        policy_id:
+          type: string
+          readOnly: true
+        token_name:
+          type: string
+          readOnly: true
+        is_active:
+          type: boolean
+          readOnly: true
+      required:
+      - is_active
+      - policy_id
+      - public_key_hash
+      - token_name
+    BadgeAssignment:
+      type: object
+      properties:
+        key:
+          type: string
+          description: Public key for signature verification
+          maxLength: 256
+          minLength: 1
+        sig:
+          type: string
+          description: ED25519 signature of the message
+          maxLength: 256
+          minLength: 1
+        msg:
+          type: string
+          description: Hex encoded preimage
+          maxLength: 256
+          minLength: 1
+        preimage:
+          type: string
+          description: Message containing UUID, PKH, and nonce
+          maxLength: 256
+          minLength: 1
+      required:
+      - key
+      - msg
+      - preimage
+      - sig
+    BadgeEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        accounts:
+          type: array
+          items:
+            type: integer
+          readOnly: true
+          description: List of Account IDs that have this badge
+        name:
+          type: string
+          description: A human readable badge name
+          minLength: 1
+        image:
+          type: string
+          description: Image link for the badge
+          minLength: 1
+        extra:
+          type: object
+          additionalProperties: {}
+          description: Additional data for the badge (optional, defaults to empty
+            object)
+        project:
+          type: string
+          format: uuid
+          description: ID of the Project that attach to this badge
+        is_active:
+          type: boolean
+          readOnly: true
+      required:
+      - accounts
+      - id
+      - image
+      - is_active
+      - name
+      - project
+    BadgePublic:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project:
+          type: string
+          format: uuid
+        name:
+          type: string
+        image:
+          type: string
+        is_active:
+          type: boolean
+        attributes:
+          type: object
+          additionalProperties: {}
+          description: Arbitrary attributes (merged into top-level at runtime).
+      required:
+      - attributes
+      - id
+      - image
+      - is_active
+      - name
+      - project
+    BatcherAccount:
+      type: object
+      properties:
+        public_key_hash:
+          type: string
+          readOnly: true
+        token_name:
+          type: string
+          readOnly: true
+        data_hash:
+          type: string
+          readOnly: true
+      required:
+      - data_hash
+      - public_key_hash
+      - token_name
+    ClientCreate:
+      type: object
+      description: |-
+        Admin-only: Creates a new Client at the requested tier.
+        A throwaway Django user is auto-generated with no login.
+      properties:
+        tier:
+          $ref: '#/components/schemas/TierEnum'
+      required:
+      - tier
+    ClientCreateResponse:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+          description: New API key (UUID) assigned to the client.
+        tier:
+          allOf:
+          - $ref: '#/components/schemas/TierEnum'
+          description: |-
+            Tier assigned to the client.
+
+            * `free` - Free
+            * `entry` - Entry
+            * `project_1` - Project_1
+            * `project_2` - Project_2
+            * `project_3` - Project_3
+            * `enterprise` - Enterprise
+            * `batcher` - Batcher
+            * `admin` - Admin
+        username:
+          type: string
+          description: Username of the client
+      required:
+      - key
+      - tier
+      - username
+    ClientRotateResponse:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+          description: Freshly minted client API key (UUID).
+      required:
+      - key
+    ClientTier:
+      type: object
+      description: Only allows updating the `tier` on an Client.
+      properties:
+        tier:
+          $ref: '#/components/schemas/TierEnum'
+    ClientToken:
+      type: object
+      description: |-
+        Accepts a Client.key (UUID) and returns nothing here,
+        the view will issue the token pair on valid input.
+      properties:
+        key:
+          type: string
+          format: uuid
+          description: Your Client key (UUID)
+      required:
+      - key
+    Detail:
+      type: object
+      properties:
+        detail:
+          type: string
+          description: Human-readable message describing the result or error.
+      required:
+      - detail
+    EntityTypeEnum:
+      enum:
+      - account
+      - project
+      - metric
+      - badge
+      - client
+      - membership
+      type: string
+      description: |-
+        * `account` - Account
+        * `project` - Project
+        * `metric` - Metric
+        * `badge` - Badge
+        * `client` - Client
+        * `membership` - Membership
+    FloatMetric:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        project:
+          type: string
+          format: uuid
+          readOnly: true
+        key:
+          type: string
+          maxLength: 64
+          pattern: ^[-a-zA-Z0-9_]+$
+        label:
+          type: string
+          maxLength: 32
+        units:
+          type: string
+          maxLength: 16
+        weight:
+          type: number
+          format: double
+          maximum: 18446744073709551615
+          minimum: 0.0
+        description:
+          type: string
+        default_value:
+          type: number
+          format: double
+          maximum: 18446744073709551615
+          minimum: 0.0
+        is_active:
+          type: boolean
+          readOnly: true
+      required:
+      - id
+      - is_active
+      - key
+      - project
+    Hash:
+      type: object
+      description: Serializer for returning the data hash
+      properties:
+        hash:
+          type: string
+      required:
+      - hash
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Service status
+      required:
+      - status
+    HealthUnavailable:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Service status
+        services:
+          type: array
+          items:
+            type: string
+          description: List of unavailable services
+      required:
+      - services
+      - status
+    HistoryEntry:
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+          readOnly: true
+        data:
+          description: A canonical JSON object.
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - data
+      - project_id
+    PaginatedAuditLogList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditLog'
+    PaginatedBadgeAccountListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/BadgeAccountList'
+    PaginatedBadgeEntryList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/BadgeEntry'
+    PaginatedBatcherAccountList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/BatcherAccount'
+    PaginatedFloatMetricList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/FloatMetric'
+    PaginatedHistoryEntryList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/HistoryEntry'
+    PaginatedProjectAccountDataListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectAccountDataList'
+    PaginatedProjectAccountListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectAccountList'
+    PaginatedProjectAccountScoreListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectAccountScoreList'
+    PaginatedProjectEntryList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectEntry'
+    PaginatedProjectEntryListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectEntryList'
+    PatchedAccountPatch:
+      type: object
+      properties:
+        token_name:
+          type: string
+          description: A unique token identifier.
+          maxLength: 64
+          minLength: 64
+        tx_cbor:
+          type: string
+          writeOnly: true
+          description: A valid transaction in CBOR proving the mint validation.
+          maxLength: 16384
+    PatchedClientTier:
+      type: object
+      description: Only allows updating the `tier` on an Client.
+      properties:
+        tier:
+          $ref: '#/components/schemas/TierEnum'
+    PatchedProjectMembership:
+      type: object
+      properties:
+        public_key:
+          type: string
+          description: Public key for signature verification
+          maxLength: 512
+          minLength: 1
+        signature:
+          type: string
+          description: CIP08 signature of the message
+          maxLength: 1024
+          minLength: 1
+        message:
+          type: string
+          description: Message containing UUID, PKH, and nonce
+          maxLength: 512
+          minLength: 1
+    PatchedSignedPayload:
+      type: object
+      properties:
+        body:
+          type: object
+          additionalProperties: {}
+          description: Arbitrary canonical JSON payload to be processed.
+        signature:
+          $ref: '#/components/schemas/SignatureBlock'
+        validity_range:
+          $ref: '#/components/schemas/RangeWindow'
+    ProjectAccountDataList:
+      type: object
+      properties:
+        account:
+          $ref: '#/components/schemas/ProjectAccountList'
+        metrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectAccountMetricEntry'
+      required:
+      - account
+      - metrics
+    ProjectAccountList:
+      type: object
+      properties:
+        policy_id:
+          type: string
+          readOnly: true
+          description: Policy Id associated with this account.
+        public_key_hash:
+          type: string
+          readOnly: true
+          description: Unique public key hash.
+        token_name:
+          type: string
+          readOnly: true
+          description: Token name associated with this account.
+        account_is_active:
+          type: boolean
+          readOnly: true
+          description: Is the account active globally?
+        membership_is_active:
+          type: boolean
+          readOnly: true
+          description: Is this account active for this project (ProjectAccountStatus.is_active)?
+        membership_deactivated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          description: When this account was deactivated for this project (if inactive).
+      required:
+      - account_is_active
+      - membership_deactivated_at
+      - membership_is_active
+      - policy_id
+      - public_key_hash
+      - token_name
+    ProjectAccountMetricEntry:
+      type: object
+      properties:
+        project:
+          type: string
+          format: uuid
+          readOnly: true
+        key:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
+        metric_label:
+          type: string
+          readOnly: true
+        units:
+          type: string
+          readOnly: true
+        weight:
+          type: number
+          format: double
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        default_value:
+          type: number
+          format: double
+          readOnly: true
+        is_active:
+          type: boolean
+          readOnly: true
+        value:
+          type: number
+          format: double
+          readOnly: true
+      required:
+      - default_value
+      - description
+      - is_active
+      - key
+      - metric_label
+      - project
+      - units
+      - value
+      - weight
+    ProjectAccountScoreList:
+      type: object
+      properties:
+        account:
+          $ref: '#/components/schemas/ProjectAccountList'
+        score:
+          type: number
+          format: double
+      required:
+      - account
+      - score
+    ProjectEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        accounts:
+          type: integer
+          readOnly: true
+          description: Count of accounts joined to this project. By default counts
+            only active ProjectAccountStatus rows; use include_inactive=true to include
+            inactive statuses.
+        name:
+          type: string
+          description: A human readable project name
+          minLength: 1
+          maxLength: 128
+        public_key:
+          type: string
+          description: Public key used to sign valid transitions.
+          minLength: 64
+          maxLength: 64
+        description:
+          type: string
+          description: Optional human description of the project
+          maxLength: 512
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: When this project was created
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: When this project was last updated
+        score_decay:
+          type: integer
+          minimum: 1
+          default: 30
+          description: The length of time for a user's score to decay by e.
+        image:
+          type: string
+          default: https://placehold.co/500
+          description: Image link for the project. Send blank or omit to use the default
+            image.
+      required:
+      - accounts
+      - created_at
+      - id
+      - name
+      - public_key
+      - updated_at
+    ProjectEntryList:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+          description: A human readable project name
+        description:
+          type: string
+          readOnly: true
+          description: Optional human description of the project
+        score_decay:
+          type: integer
+          readOnly: true
+          description: The length of time for a users score to decay by e.
+        image:
+          type: string
+          readOnly: true
+          description: URI (http, https, ipfs, data) of an image
+        is_active:
+          type: boolean
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: When this project was created
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: When this project was last updated
+      required:
+      - created_at
+      - description
+      - id
+      - image
+      - is_active
+      - name
+      - score_decay
+      - updated_at
+    ProjectMembership:
+      type: object
+      properties:
+        public_key:
+          type: string
+          description: Public key for signature verification
+          maxLength: 512
+          minLength: 1
+        signature:
+          type: string
+          description: CIP08 signature of the message
+          maxLength: 1024
+          minLength: 1
+        message:
+          type: string
+          description: Message containing UUID, PKH, and nonce
+          maxLength: 512
+          minLength: 1
+      required:
+      - message
+      - public_key
+      - signature
+    ProjectTier:
+      type: object
+      properties:
+        tier:
+          type: string
+        rate:
+          type: string
+          nullable: true
+        project_limit:
+          type: integer
+          minimum: 0
+        metric_limit:
+          type: integer
+          minimum: 0
+        badge_limit:
+          type: integer
+          minimum: 0
+      required:
+      - badge_limit
+      - metric_limit
+      - project_limit
+      - rate
+      - tier
+    RangeWindow:
+      type: object
+      properties:
+        invalid_after:
+          type: integer
+          default: 18446744073709551615
+          description: Unix timestamp (seconds). Payload is invalid after this time
+            (exclusive).
+        invalid_before:
+          type: integer
+          default: 0
+          description: Unix timestamp (seconds). Payload is invalid before this time
+            (inclusive).
+    Score:
+      type: object
+      description: Serializer for returning a float field, the reputation score for
+        a project.
+      properties:
+        score:
+          type: number
+          format: double
+          description: An account's reputation score
+      required:
+      - score
+    Scores:
+      type: object
+      description: Serializer for returning a dictionary of float fields, the reputation
+        score for each project.
+      properties:
+        scores:
+          type: object
+          additionalProperties:
+            type: number
+            format: double
+          nullable: true
+    SignatureBlock:
+      type: object
+      properties:
+        key:
+          type: string
+          description: 'Public key of the signer (encoding TBD: hex/base58/base64).'
+          maxLength: 256
+          minLength: 1
+        msg:
+          type: string
+          description: Hex-encoded message that was signed (e.g., CBOR→Blake2b-256).
+          maxLength: 256
+          minLength: 1
+        sig:
+          type: string
+          description: Hex-encoded Ed25519 signature over `msg`.
+          maxLength: 256
+          minLength: 1
+      required:
+      - key
+      - msg
+      - sig
+    SignedPayload:
+      type: object
+      properties:
+        body:
+          type: object
+          additionalProperties: {}
+          description: Arbitrary canonical JSON payload to be processed.
+        signature:
+          $ref: '#/components/schemas/SignatureBlock'
+        validity_range:
+          $ref: '#/components/schemas/RangeWindow'
+      required:
+      - body
+      - signature
+      - validity_range
+    StatusResponse:
+      type: object
+      properties:
+        authenticated:
+          type: boolean
+          description: Whether the request was authenticated
+        version:
+          type: string
+          description: Human-readable api version
+        maintenance:
+          type: boolean
+          description: Human-readable api maintenance boolean
+        script_hash:
+          type: string
+          description: current script hash for the reputation contract
+        stake_hash:
+          type: string
+          description: current stake hash for the reputation contract
+        time_zone:
+          type: string
+          description: current timezone of the server
+      required:
+      - authenticated
+      - maintenance
+      - script_hash
+      - stake_hash
+      - time_zone
+      - version
+    Tier:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Tier identifier
+        rate_limit:
+          type: string
+          nullable: true
+          description: Rate limit (e.g. '60/min') or null for unlimited
+        max_metrics:
+          type: integer
+          nullable: true
+          description: Maximum metrics per project, null if unrestricted
+        max_badges:
+          type: integer
+          nullable: true
+          description: Maximum badges per project, null if unrestricted
+        max_projects:
+          type: integer
+          nullable: true
+          description: Maximum projects, null if unrestricted
+      required:
+      - max_badges
+      - max_metrics
+      - max_projects
+      - name
+      - rate_limit
+    TierEnum:
+      enum:
+      - free
+      - entry
+      - project_1
+      - project_2
+      - project_3
+      - enterprise
+      - batcher
+      - admin
+      type: string
+      description: |-
+        * `free` - Free
+        * `entry` - Entry
+        * `project_1` - Project_1
+        * `project_2` - Project_2
+        * `project_3` - Project_3
+        * `enterprise` - Enterprise
+        * `batcher` - Batcher
+        * `admin` - Admin
+    TiersResponse:
+      type: object
+      properties:
+        tiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tier'
+          description: Per-tier rate limits and quotas
+      required:
+      - tiers
+    TokenPair:
+      type: object
+      properties:
+        access:
+          type: string
+          description: JWT access token (bearer).
+        refresh:
+          type: string
+          description: JWT refresh token.
+      required:
+      - access
+      - refresh
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    TokenRefreshResponse:
+      type: object
+      properties:
+        access:
+          type: string
+          description: New JWT access token.
+        refresh:
+          type: string
+          description: Rotated refresh token (only when refresh rotation is enabled).
+      required:
+      - access
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+tags:
+- name: Accounts
+  description: Account Management
+- name: Clients
+  description: Client Management
+- name: Projects
+  description: Project Management
+- name: Authentication
+  description: Token Management
+- name: Utility
+  description: Utility Endpoints
+- name: Batcher
+  description: Batcher Endpoints
+- name: Badges
+  description: Badge Management
+- name: Metrics
+  description: Metric Management
