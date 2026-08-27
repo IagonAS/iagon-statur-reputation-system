@@ -1,15 +1,12 @@
-# Milestone 2 — Evidence Assets
+# Milestone 2 evidence assets
 
-This folder holds binary evidence artifacts referenced from `../fund12-milestone-2.md`.
-
-## Expected files (drop-in)
-
-These are referenced by the milestone document and need to be added by the team. Use these exact filenames so the existing links resolve:
+This folder holds the binary evidence artifacts referenced from `../fund12-milestone-2.md`. Keep the filenames as listed so the links in the milestone document resolve.
 
 | Filename | What it is | Status |
 |---|---|---|
-| `statur-audit-submission-invariant0.pdf` | The Invariant0 "Iagon Reputation — Solo Audit Report v1" (2025-06-30), trimmed to cover → contents → revision table → **executive summary** (the detailed findings / full report are reserved for Milestone 3). | ✅ added |
-| `badge-design-figma-1.png` … `badge-design-figma-N.png` | Screenshots of the badge visual design from Figma (example badges + conceptual design). | ⏳ to add |
+| `statur-audit-submission-invariant0.pdf` | The Invariant0 "Iagon Reputation — Solo Audit Report v1" (2025-06-30), trimmed to cover, contents, revision table, and executive summary. The detailed findings and full report are reserved for Milestone 3. | ✅ added |
+| `m2.mp4` | Milestone 2 demo video, local copy only (gitignored). The published version is on YouTube: <https://youtu.be/RNbqSJuVTCA>. | not committed |
+| `statur-category-weights-v2.svg` | Metrics infographic: karma formula, category-weight bar, and per-category metrics. | ✅ added |
 | `statur-iagon-category-weights.png` | Optional: the original category-weights image. A reproduced, category-level version already lives at `../../diagrams/statur-iagon-score-weights.png`. | optional |
 
-Until the ⏳ files are added, the corresponding sections in `fund12-milestone-2.md` are marked as pending.
+All referenced evidence files are present.

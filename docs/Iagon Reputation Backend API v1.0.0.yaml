@@ -1,8 +1,70 @@
 openapi: 3.0.3
 info:
   title: Iagon Reputation Backend API
-  version: v0.11.0
-  description: A stand alone backend that handles reputation data.
+  version: v1.0.0
+  description: |-
+    A standalone backend that tracks Cardano account reputation, weighted metrics, project memberships, and badges.
+
+    ## Authentication
+
+    Two layers:
+
+    1. **Long-lived client API key** (UUID, issued by an admin). Exchange it at `POST /api/v1/token/` for a JWT pair (`{access, refresh}`).
+    2. **Short-lived JWT access token**. Send it as `Authorization: Bearer <access>` on every authenticated request. Refresh at `POST /api/v1/token/refresh/`.
+
+    The access token carries a `tier` claim that gates which endpoints you can call (`free` < `entry` < `project_1` < ... < `enterprise` < `batcher` < `admin`).
+
+    ## Signed payload envelope
+
+    Every **mutation** that affects an Account, Project, Metric, or Badge requires a signed body. The wire format is:
+
+    ```json
+    {
+      "body": { ... actual request data, sorted keys ... },
+      "signature": {
+        "key": "<hex public key>",
+        "msg": "<hex>",
+        "sig": "<hex Ed25519 signature>"
+      },
+      "validity_range": {
+        "invalid_before": <unix seconds>,
+        "invalid_after":  <unix seconds>
+      }
+    }
+    ```
+
+    **Computing `msg`:**
+
+    1. CBOR-canonical-encode `body` and `validity_range` **separately**.
+    2. Blake2b-256 each of the two CBOR blobs (32-byte digests).
+    3. Concatenate the two hex digests — `msg = blake2b(cbor(body)) + blake2b(cbor({"validity_range": validity_range}))`. The result is 128 hex characters.
+    4. Sign `msg` with the account's Ed25519 private key. The `signature.key` field carries the matching public key.
+
+    Both `body` and `validity_range` MUST be in **RFC 8785 canonical JSON** form (sorted keys, no NaN/Infinity). Non-canonical payloads return `400`.
+
+    **Replay protection:** the server caches `sha256(msg + sig)` for up to 300 seconds. Sending the same payload twice returns `400 {"detail": "Duplicate payload"}`.
+
+    ## Errors
+
+    Two response shapes, both always carrying a `detail` field:
+
+    - **Hand-built errors** (404, 403, 409, 429, 503, business rule rejections):
+      ```json
+      {"detail": "Human-readable message"}
+      ```
+    - **Validation errors** (400 from request body / query param validation):
+      ```json
+      {
+        "detail": "Request validation failed",
+        "errors": {
+          "<field>": ["error message", ...]
+        }
+      }
+      ```
+
+    ## Verb conventions
+
+    Most resources follow standard REST: `POST /<collection>/` creates, `GET /<collection>/{id}/` retrieves, `PATCH /<collection>/{id}/` updates, `DELETE` would remove. A few endpoints — notably account/project deactivation — use `POST /<collection>/{id}/` with a signed burn-proof body instead of `DELETE`. This is intentional: `DELETE` requests with bodies are not universally supported by HTTP infrastructure (some proxies and CDNs strip the body), and the burn proof must travel in the body. The OpenAPI summary for each affected endpoint says so explicitly.
 paths:
   /api/v1/accounts/{public_key_hash}/:
     get:
@@ -206,47 +268,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Detail'
           description: ''
-    delete:
-      operationId: account_deactivate_deprecated
-      description: This endpoint forwards internally to POST and has identical behavior.
-      summary: Deactivate account [deprecated]
-      parameters:
-      - in: path
-        name: public_key_hash
-        schema:
-          type: string
-        description: The account's public key hash (resource ID).
-        required: true
-      tags:
-      - Accounts
-      deprecated: true
-      responses:
-        '204':
-          description: No content
-        '400':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Detail'
-          description: ''
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Detail'
-          description: ''
-        '409':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Detail'
-          description: ''
-        '429':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Detail'
-          description: ''
   /api/v1/accounts/{public_key_hash}/audit/:
     get:
       operationId: accounts_audit_list
@@ -384,32 +405,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Detail'
           description: ''
-  /api/v1/accounts/{public_key_hash}/history/:
-    get:
-      operationId: accounts_history_list
-      parameters:
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - in: path
-        name: public_key_hash
-        schema:
-          type: string
-        required: true
-      tags:
-      - Accounts
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginatedHistoryEntryList'
-          description: ''
   /api/v1/accounts/{public_key_hash}/projects/:
     get:
       operationId: accounts_projects_list
@@ -471,13 +466,15 @@ paths:
               $ref: '#/components/schemas/ProjectMembership'
         required: true
       responses:
-        '200':
+        '204':
+          description: No content
+        '400':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Detail'
           description: ''
-        '400':
+        '403':
           content:
             application/json:
               schema:
@@ -495,7 +492,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Detail'
           description: ''
-    patch:
+    put:
       operationId: account_project_join
       description: Adds the account to the project or reactivates its membership.
         Requires a valid CIP-8 signature over the nonce message.
@@ -520,68 +517,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedProjectMembership'
+              $ref: '#/components/schemas/ProjectMembership'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedProjectMembership'
+              $ref: '#/components/schemas/ProjectMembership'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedProjectMembership'
+              $ref: '#/components/schemas/ProjectMembership'
+        required: true
       responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Detail'
-          description: ''
+        '204':
+          description: No content
         '400':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Detail'
           description: ''
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Detail'
-          description: ''
-        '429':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Detail'
-          description: ''
-    delete:
-      operationId: account_project_leave_deprecated
-      description: Marks the account's membership for this project as inactive. Requires
-        a valid CIP-8 signature over the nonce message.
-      summary: Deactivate account membership (idempotent) [deprecated]
-      parameters:
-      - in: path
-        name: project_id
-        schema:
-          type: string
-          format: uuid
-        description: Project UUID.
-        required: true
-      - in: path
-        name: public_key_hash
-        schema:
-          type: string
-        description: Account public key hash.
-        required: true
-      tags:
-      - Accounts
-      deprecated: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Detail'
-          description: ''
-        '400':
+        '403':
           content:
             application/json:
               schema:
@@ -626,7 +579,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Detail'
+                $ref: '#/components/schemas/Nonce'
           description: ''
         '404':
           content:
@@ -928,7 +881,7 @@ paths:
       security:
       - jwtAuth: []
       responses:
-        '200':
+        '201':
           content:
             application/json:
               schema:
@@ -961,10 +914,10 @@ paths:
   /api/v1/health/:
     get:
       operationId: health_check
-      description: Public liveness endpoint for monitoring. Verifies database and
-        cache connectivity. Returns 200 when all services are reachable, 503 when
-        one or more services are unavailable.
-      summary: Health Check
+      description: Readiness probe. Verifies database and cache connectivity. Returns
+        200 when all services are reachable, 503 when one or more are unavailable.
+        For liveness (process-alive only) use GET /api/v1/live/ instead.
+      summary: Readiness check
       tags:
       - Utility
       responses:
@@ -979,6 +932,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HealthUnavailable'
+          description: ''
+  /api/v1/live/:
+    get:
+      operationId: liveness_check
+      description: Liveness probe. Returns 200 as long as the process can serve a
+        response. Does NOT check DB or cache — use GET /api/v1/health/ for that. Intended
+        for orchestrator restart-on-failure checks.
+      summary: Liveness check
+      tags:
+      - Utility
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
           description: ''
   /api/v1/projects/:
     get:
@@ -1132,12 +1101,8 @@ paths:
       security:
       - jwtAuth: []
       responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Detail'
-          description: ''
+        '204':
+          description: No content
         '400':
           content:
             application/json:
@@ -1202,59 +1167,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProjectEntry'
-          description: ''
-        '400':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Detail'
-          description: ''
-        '401':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Detail'
-          description: ''
-        '403':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Detail'
-          description: ''
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Detail'
-          description: ''
-        '429':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Detail'
-          description: ''
-    delete:
-      operationId: project_deactivate_deprecated
-      summary: Deactivate a project (idempotent) [deprecated]
-      parameters:
-      - in: path
-        name: project_id
-        schema:
-          type: string
-          format: uuid
-        description: UUID of the project
-        required: true
-      tags:
-      - Projects
-      security:
-      - jwtAuth: []
-      deprecated: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Detail'
           description: ''
         '400':
           content:
@@ -1437,12 +1349,8 @@ paths:
       security:
       - jwtAuth: []
       responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Detail'
-          description: ''
+        '204':
+          description: No content
         '400':
           content:
             application/json:
@@ -2127,7 +2035,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Detail'
+                $ref: '#/components/schemas/Nonce'
           description: ''
         '401':
           content:
@@ -2248,8 +2156,8 @@ paths:
       operationId: metric_create
       description: Creates a new `FloatMetric` scoped to the given project using a
         signed payload. If a metric with the same `(project, key)` already exists,
-        returns 200 with the existing metric instead of creating a duplicate.
-      summary: Create or fetch metric for a project
+        returns 409 Conflict.
+      summary: Create a metric for a project
       parameters:
       - in: path
         name: project_id
@@ -2275,12 +2183,6 @@ paths:
       security:
       - jwtAuth: []
       responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FloatMetric'
-          description: ''
         '201':
           content:
             application/json:
@@ -2306,6 +2208,12 @@ paths:
                 $ref: '#/components/schemas/Detail'
           description: ''
         '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '409':
           content:
             application/json:
               schema:
@@ -2650,7 +2558,8 @@ components:
         tx_cbor:
           type: string
           writeOnly: true
-          description: A valid transaction in CBOR proving the burn validation.
+          description: A valid transaction in CBOR proving the burn validation. Must
+            be canonical CBOR (re-encoding the body must round-trip).
           maxLength: 16384
       required:
       - tx_cbor
@@ -2670,7 +2579,8 @@ components:
         tx_cbor:
           type: string
           writeOnly: true
-          description: A valid transaction in CBOR proving the mint validation.
+          description: A valid transaction in CBOR proving the mint validation. Must
+            be canonical CBOR (re-encoding the body must round-trip).
           maxLength: 16384
       required:
       - public_key_hash
@@ -2824,10 +2734,12 @@ components:
           type: string
           description: A human readable badge name
           minLength: 1
+          maxLength: 256
         image:
           type: string
           description: Image link for the badge
           minLength: 1
+          maxLength: 1000
         extra:
           type: object
           additionalProperties: {}
@@ -2999,25 +2911,25 @@ components:
           type: string
           maxLength: 16
         weight:
-          type: number
-          format: double
-          maximum: 18446744073709551615
-          minimum: 0.0
+          type: string
+          pattern: ^(0|[1-9]\d*)\.\d{6}$
+          example: '1.500000'
         description:
           type: string
         default_value:
-          type: number
-          format: double
-          maximum: 18446744073709551615
-          minimum: 0.0
+          type: string
+          pattern: ^(0|[1-9]\d*)\.\d{6}$
+          example: '1.500000'
         is_active:
           type: boolean
           readOnly: true
       required:
+      - default_value
       - id
       - is_active
       - key
       - project
+      - weight
     Hash:
       type: object
       description: Serializer for returning the data hash
@@ -3048,23 +2960,14 @@ components:
       required:
       - services
       - status
-    HistoryEntry:
+    Nonce:
       type: object
       properties:
-        project_id:
+        nonce:
           type: string
-          format: uuid
-          readOnly: true
-        data:
-          description: A canonical JSON object.
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
+          description: Short-lived message the client must sign to prove authorization.
       required:
-      - created_at
-      - data
-      - project_id
+      - nonce
     PaginatedAuditLogList:
       type: object
       required:
@@ -3180,29 +3083,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FloatMetric'
-    PaginatedHistoryEntryList:
-      type: object
-      required:
-      - count
-      - results
-      properties:
-        count:
-          type: integer
-          example: 123
-        next:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/HistoryEntry'
     PaginatedProjectAccountDataListList:
       type: object
       required:
@@ -3329,7 +3209,8 @@ components:
         tx_cbor:
           type: string
           writeOnly: true
-          description: A valid transaction in CBOR proving the mint validation.
+          description: A valid transaction in CBOR proving the mint validation. Must
+            be canonical CBOR (re-encoding the body must round-trip).
           maxLength: 16384
     PatchedClientTier:
       type: object
@@ -3337,24 +3218,6 @@ components:
       properties:
         tier:
           $ref: '#/components/schemas/TierEnum'
-    PatchedProjectMembership:
-      type: object
-      properties:
-        public_key:
-          type: string
-          description: Public key for signature verification
-          maxLength: 512
-          minLength: 1
-        signature:
-          type: string
-          description: CIP08 signature of the message
-          maxLength: 1024
-          minLength: 1
-        message:
-          type: string
-          description: Message containing UUID, PKH, and nonce
-          maxLength: 512
-          minLength: 1
     PatchedSignedPayload:
       type: object
       properties:
@@ -3432,22 +3295,25 @@ components:
           type: string
           readOnly: true
         weight:
-          type: number
-          format: double
+          type: string
+          pattern: ^(0|[1-9]\d*)\.\d{6}$
+          example: '1.500000'
           readOnly: true
         description:
           type: string
           readOnly: true
         default_value:
-          type: number
-          format: double
+          type: string
+          pattern: ^(0|[1-9]\d*)\.\d{6}$
+          example: '1.500000'
           readOnly: true
         is_active:
           type: boolean
           readOnly: true
         value:
-          type: number
-          format: double
+          type: string
+          pattern: ^(0|[1-9]\d*)\.\d{6}$
+          example: '1.500000'
           readOnly: true
       required:
       - default_value
@@ -3465,8 +3331,7 @@ components:
         account:
           $ref: '#/components/schemas/ProjectAccountList'
         score:
-          type: number
-          format: double
+          type: string
       required:
       - account
       - score
@@ -3509,6 +3374,7 @@ components:
           description: When this project was last updated
         score_decay:
           type: integer
+          maximum: 2147483647
           minimum: 1
           default: 30
           description: The length of time for a user's score to decay by e.
@@ -3619,35 +3485,39 @@ components:
       properties:
         invalid_after:
           type: integer
-          default: 18446744073709551615
+          maximum: 18446744073709551615
+          format: int64
           description: Unix timestamp (seconds). Payload is invalid after this time
-            (exclusive).
+            (exclusive). Required.
         invalid_before:
           type: integer
-          default: 0
+          minimum: 0
           description: Unix timestamp (seconds). Payload is invalid before this time
-            (inclusive).
+            (inclusive). Required.
+      required:
+      - invalid_after
+      - invalid_before
     Score:
       type: object
-      description: Serializer for returning a float field, the reputation score for
-        a project.
+      description: |-
+        Serializer for returning a single reputation score as a canonical scale-6
+        decimal string (payload format v2).
       properties:
         score:
-          type: number
-          format: double
-          description: An account's reputation score
+          type: string
+          description: An account's reputation score (canonical decimal string)
       required:
       - score
     Scores:
       type: object
-      description: Serializer for returning a dictionary of float fields, the reputation
-        score for each project.
+      description: |-
+        Serializer for returning a dict of per-project reputation scores as canonical
+        scale-6 decimal strings (payload format v2).
       properties:
         scores:
           type: object
           additionalProperties:
-            type: number
-            format: double
+            type: string
           nullable: true
     SignatureBlock:
       type: object

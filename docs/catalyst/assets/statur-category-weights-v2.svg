@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1040" viewBox="0 0 1600 1040" role="img" aria-labelledby="ttl desc" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Inter, sans-serif">
+<title id="ttl">Karma points and category weights</title>
+<desc id="desc">Iagon's Statur configuration: the scoring formula with exponential decay, a proportional bar of eight category weights summing to 1.00, and the metrics that make up each category.</desc>
+
+<rect x="0" y="0" width="1600" height="1040" fill="#FCFCFB"/>
+
+<text x="96" y="98" font-size="40" font-weight="600" letter-spacing="-1.1" fill="#16161A">Karma points and category weights</text>
+<text x="96" y="134" font-size="17" letter-spacing="-0.1" fill="#75757E">Iagon's own instantiation of Statur · eight categories, weights summing to 1.00</text>
+
+<line x1="96" y1="166" x2="1504" y2="166" stroke="#E8E7E3" stroke-width="1"/>
+
+<rect x="96" y="194" width="1408" height="112" rx="18" fill="#F5F4F1"/>
+<text x="800" y="248" font-size="22" text-anchor="middle" letter-spacing="-0.2" font-family="'SF Mono', ui-monospace, Menlo, Consolas, monospace" fill="#16161A">score = ( Σ(value · weight) / Σ(weight) ) · e^(−days_inactive / decay_rate)</text>
+<text x="800" y="280" font-size="15" text-anchor="middle" letter-spacing="-0.1" fill="#75757E">A weighted average of the category scores, decaying exponentially while an account is idle — shown to users as karma points.</text>
+
+<text x="96" y="356" font-size="13" font-weight="600" letter-spacing="0.6" fill="#6E6E78">CATEGORY WEIGHTS</text>
+
+<rect x="96" y="376" width="388" height="64" rx="5" fill="#3A3185"/>
+<text x="290" y="415" font-size="17" font-weight="500" text-anchor="middle" letter-spacing="-0.2" fill="#FFFFFF">0.28</text>
+
+<rect x="487" y="376" width="250" height="64" rx="5" fill="#4A3F9E"/>
+<text x="612" y="415" font-size="17" font-weight="500" text-anchor="middle" letter-spacing="-0.2" fill="#FFFFFF">0.18</text>
+
+<rect x="740" y="376" width="180" height="64" rx="5" fill="#5A4FB5"/>
+<text x="830" y="415" font-size="17" font-weight="500" text-anchor="middle" letter-spacing="-0.2" fill="#FFFFFF">0.13</text>
+
+<rect x="923" y="376" width="153" height="64" rx="5" fill="#6B60C6"/>
+<text x="999" y="415" font-size="17" font-weight="500" text-anchor="middle" letter-spacing="-0.2" fill="#FFFFFF">0.11</text>
+
+<rect x="1079" y="376" width="139" height="64" rx="5" fill="#7369C9"/>
+<text x="1148" y="415" font-size="17" font-weight="500" text-anchor="middle" letter-spacing="-0.2" fill="#FFFFFF">0.10</text>
+
+<rect x="1221" y="376" width="111" height="64" rx="5" fill="#9A91E0"/>
+<text x="1276" y="415" font-size="16" font-weight="500" text-anchor="middle" letter-spacing="-0.2" fill="#241E5E">0.08</text>
+
+<rect x="1335" y="376" width="97" height="64" rx="5" fill="#B3ACE9"/>
+<text x="1383" y="415" font-size="16" font-weight="500" text-anchor="middle" letter-spacing="-0.2" fill="#241E5E">0.07</text>
+
+<rect x="1435" y="376" width="69" height="64" rx="5" fill="#CBC6F2"/>
+<text x="1469" y="415" font-size="16" font-weight="500" text-anchor="middle" letter-spacing="-0.2" fill="#241E5E">0.05</text>
+
+<text x="96" y="470" font-size="14" letter-spacing="-0.1" fill="#6E6E78">Width and depth of tone both track weight. A weight of zero would keep a category tracked but out of the score entirely.</text>
+
+<text x="96" y="524" font-size="13" font-weight="600" letter-spacing="0.6" fill="#6E6E78">WHAT EACH CATEGORY IS BUILT FROM</text>
+
+<rect x="96" y="544" width="334" height="176" rx="16" fill="#FFFFFF" stroke="#E8E7E3" stroke-width="1"/>
+<rect x="120" y="574" width="9" height="9" rx="2.5" fill="#3A3185"/>
+<text x="140" y="583" font-size="17" font-weight="600" letter-spacing="-0.2" fill="#16161A">Token holder</text>
+<text x="406" y="583" font-size="19" font-weight="500" text-anchor="end" letter-spacing="-0.3" fill="#4A3F9E">0.28</text>
+<line x1="120" y1="602" x2="406" y2="602" stroke="#EFEEEA" stroke-width="1"/>
+<text x="120" y="634" font-size="15" letter-spacing="-0.1" fill="#3D3D45">Holding quantity</text>
+<text x="120" y="660" font-size="15" letter-spacing="-0.1" fill="#3D3D45">Holding duration</text>
+<text x="120" y="694" font-size="13" letter-spacing="-0.05" fill="#6E6E78">Staked tokens count as holdings</text>
+
+<rect x="454" y="544" width="334" height="176" rx="16" fill="#FFFFFF" stroke="#E8E7E3" stroke-width="1"/>
+<rect x="478" y="574" width="9" height="9" rx="2.5" fill="#4A3F9E"/>
+<text x="498" y="583" font-size="17" font-weight="600" letter-spacing="-0.2" fill="#16161A">Liquidity provider</text>
+<text x="764" y="583" font-size="19" font-weight="500" text-anchor="end" letter-spacing="-0.3" fill="#4A3F9E">0.18</text>
+<line x1="478" y1="602" x2="764" y2="602" stroke="#EFEEEA" stroke-width="1"/>
+<text x="478" y="634" font-size="15" letter-spacing="-0.1" fill="#3D3D45">Liquidity quantity</text>
+<text x="478" y="660" font-size="15" letter-spacing="-0.1" fill="#3D3D45">Liquidity duration</text>
+<text x="478" y="694" font-size="13" letter-spacing="-0.05" fill="#6E6E78">Liquidity plus farmed LP tokens</text>
+
+<rect x="812" y="544" width="334" height="176" rx="16" fill="#FFFFFF" stroke="#E8E7E3" stroke-width="1"/>
+<rect x="836" y="574" width="9" height="9" rx="2.5" fill="#5A4FB5"/>
+<text x="856" y="583" font-size="17" font-weight="600" letter-spacing="-0.2" fill="#16161A">Node operator</text>
+<text x="1122" y="583" font-size="19" font-weight="500" text-anchor="end" letter-spacing="-0.3" fill="#4A3F9E">0.13</text>
+<line x1="836" y1="602" x2="1122" y2="602" stroke="#EFEEEA" stroke-width="1"/>
+<text x="836" y="634" font-size="15" letter-spacing="-0.1" fill="#3D3D45">Node reputation score</text>
+<text x="836" y="660" font-size="15" letter-spacing="-0.1" fill="#3D3D45">Node operation duration</text>
+<text x="836" y="686" font-size="15" letter-spacing="-0.1" fill="#3D3D45">Margin changes</text>
+
+<rect x="1170" y="544" width="334" height="176" rx="16" fill="#FFFFFF" stroke="#E8E7E3" stroke-width="1"/>
+<rect x="1194" y="574" width="9" height="9" rx="2.5" fill="#6B60C6"/>
+<text x="1214" y="583" font-size="17" font-weight="600" letter-spacing="-0.2" fill="#16161A">Token staker</text>
+<text x="1480" y="583" font-size="19" font-weight="500" text-anchor="end" letter-spacing="-0.3" fill="#4A3F9E">0.11</text>
+<line x1="1194" y1="602" x2="1480" y2="602" stroke="#EFEEEA" stroke-width="1"/>
+<text x="1194" y="634" font-size="15" letter-spacing="-0.1" fill="#3D3D45">Staking quantity</text>
+<text x="1194" y="660" font-size="15" letter-spacing="-0.1" fill="#3D3D45">Staking duration</text>
+<text x="1194" y="694" font-size="13" letter-spacing="-0.05" fill="#6E6E78">Operator or delegator</text>
+
+<rect x="96" y="744" width="334" height="176" rx="16" fill="#FFFFFF" stroke="#E8E7E3" stroke-width="1"/>
+<rect x="120" y="774" width="9" height="9" rx="2.5" fill="#7369C9"/>
+<text x="140" y="783" font-size="17" font-weight="600" letter-spacing="-0.2" fill="#16161A">Token trader</text>
+<text x="406" y="783" font-size="19" font-weight="500" text-anchor="end" letter-spacing="-0.3" fill="#4A3F9E">0.10</text>
+<line x1="120" y1="802" x2="406" y2="802" stroke="#EFEEEA" stroke-width="1"/>
+<text x="120" y="834" font-size="15" letter-spacing="-0.1" fill="#3D3D45">Total trading volume</text>
+<text x="120" y="860" font-size="15" letter-spacing="-0.1" fill="#3D3D45">Buys vs. sells</text>
+
+<rect x="454" y="744" width="334" height="176" rx="16" fill="#FFFFFF" stroke="#E8E7E3" stroke-width="1"/>
+<rect x="478" y="774" width="9" height="9" rx="2.5" fill="#9A91E0"/>
+<text x="498" y="783" font-size="17" font-weight="600" letter-spacing="-0.2" fill="#16161A">Stake pool delegator</text>
+<text x="764" y="783" font-size="19" font-weight="500" text-anchor="end" letter-spacing="-0.3" fill="#4A3F9E">0.08</text>
+<line x1="478" y1="802" x2="764" y2="802" stroke="#EFEEEA" stroke-width="1"/>
+<text x="478" y="834" font-size="15" letter-spacing="-0.1" fill="#3D3D45">ADA quantity</text>
+<text x="478" y="860" font-size="15" letter-spacing="-0.1" fill="#3D3D45">Delegation duration</text>
+<text x="478" y="894" font-size="13" letter-spacing="-0.05" fill="#6E6E78">Measured in ADA, not IAG</text>
+
+<rect x="812" y="744" width="334" height="176" rx="16" fill="#FFFFFF" stroke="#E8E7E3" stroke-width="1"/>
+<rect x="836" y="774" width="9" height="9" rx="2.5" fill="#B3ACE9"/>
+<text x="856" y="783" font-size="17" font-weight="600" letter-spacing="-0.2" fill="#16161A">Badges</text>
+<text x="1122" y="783" font-size="19" font-weight="500" text-anchor="end" letter-spacing="-0.3" fill="#4A3F9E">0.07</text>
+<line x1="836" y1="802" x2="1122" y2="802" stroke="#EFEEEA" stroke-width="1"/>
+<text x="836" y="834" font-size="15" letter-spacing="-0.1" fill="#3D3D45">Each badge earns a unique weight</text>
+<text x="836" y="894" font-size="13" letter-spacing="-0.05" fill="#6E6E78">Awarded by the project, not measured</text>
+
+<rect x="1170" y="744" width="334" height="176" rx="16" fill="#FFFFFF" stroke="#E8E7E3" stroke-width="1"/>
+<rect x="1194" y="774" width="9" height="9" rx="2.5" fill="#CBC6F2"/>
+<text x="1214" y="783" font-size="17" font-weight="600" letter-spacing="-0.2" fill="#16161A">Storage subscriber</text>
+<text x="1480" y="783" font-size="19" font-weight="500" text-anchor="end" letter-spacing="-0.3" fill="#4A3F9E">0.05</text>
+<line x1="1194" y1="802" x2="1480" y2="802" stroke="#EFEEEA" stroke-width="1"/>
+<text x="1194" y="834" font-size="15" letter-spacing="-0.1" fill="#3D3D45">Subscription size</text>
+<text x="1194" y="860" font-size="15" letter-spacing="-0.1" fill="#3D3D45">Storage used</text>
+<text x="1194" y="886" font-size="15" letter-spacing="-0.1" fill="#3D3D45">Subscription duration</text>
+
+<line x1="96" y1="960" x2="1504" y2="960" stroke="#E8E7E3" stroke-width="1"/>
+<text x="96" y="986" font-size="13" letter-spacing="-0.05" fill="#6E6E78">Statur imposes no fixed set of metrics — each project defines its own categories, value ranges and weights. Everything above is Iagon's configuration.</text>
+<text x="96" y="1008" font-size="13" letter-spacing="-0.05" fill="#6E6E78">Weights within each category, and the underlying value scales, are internal and out of scope at this milestone.</text>
+<text x="1504" y="986" font-size="13" text-anchor="end" letter-spacing="-0.05" fill="#6E6E78">docs.iagon.com/products/statur</text>
+</svg>
