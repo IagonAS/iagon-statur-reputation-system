@@ -25,7 +25,7 @@ sequenceDiagram
   PB->>PB: Sign message with ed25519 key
   PB->>RB: PUT badges/{badge_id}/accounts/{pkh}/<br>Body: key, sig, msg, preimage
   RB->>RB: Verify signature and nonce freshness
-  RB->>DB: Create badge-to-account link<br>(idempotent; no-op if already held)
+  RB->>DB: Create badge-to-account link<br>(idempotent, no-op if already held)
   DB-->>RB: Link stored
   RB-->>PB: 204 No Content
 
